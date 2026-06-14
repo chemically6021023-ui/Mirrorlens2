@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거울과 렌즈 탐구</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #F7F5F0;
+    color: #2D2D2D;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #fff;
+    border-bottom: 2px solid #E8E4DE;
+    padding: 16px 20px 0;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #1A1A1A;
+    margin-bottom: 14px;
+  }
+  header h1 span { color: #4DBFB0; }
+
+  /* Main tabs */
+  .main-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+  .main-tab {
+    padding: 10px 32px;
+    border: none;
+    background: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: #999;
+    cursor: pointer;
+    border-radius: 10px 10px 0 0;
+    transition: all 0.2s;
+  }
+  .main-tab.active {
+    background: #F7F5F0;
+    color: #1A1A1A;
+    border-top: 3px solid #4DBFB0;
+  }
+
+  .container { max-width: 680px; margin: 0 auto; padding: 20px 16px; }
+
+  /* Section tabs (볼록/오목) */
+  .type-selector {
+    display: flex;
+    background: #E8E4DE;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .type-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+  }
+  .type-btn.active {
+    background: #fff;
+    color: #1A1A1A;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  }
+
+  /* Simulator card */
+  .sim-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  .sim-card h2 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .badge-convex { background: #F0956A; }
+  .badge-concave { background: #4DBFB0; }
+  .badge-lens-convex { background: #7B8CDE; }
+  .badge-lens-concave { background: #E07BB5; }
+
+  /* Distance slider */
+  .slider-section { margin: 18px 0 10px; }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+  }
+  .slider-label .dist-val {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1A1A1A;
+  }
+  input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: #E8E4DE;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: #4DBFB0;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(77,191,176,0.4);
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:active { transform: scale(1.2); }
+
+  .dist-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #AAA;
+    margin-top: 4px;
+  }
+
+  /* SVG smooth transition */
+  .optic-svg * {
+    transition: all 0.05s linear;
+  }
+
+  /* Visual display */
+  .visual-box {
+    background: #F7F5F0;
+    border-radius: 14px;
+    padding: 20px 16px;
+    margin: 16px 0;
+    text-align: center;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Object + image SVG area */
+  .scene {
+    width: 100%;
+    height: 120px;
+    position: relative;
+  }
+
+  .optic-svg {
+    width: 100%;
+    height: 120px;
+  }
+
+  /* Info box */
+  .info-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid #4DBFB0;
+    margin-top: 4px;
+  }
+  .info-box .info-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4DBFB0;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .info-box .info-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A1A1A;
+    line-height: 1.5;
+  }
+  .info-box .tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tag-upright { background: #E8F9F7; color: #4DBFB0; }
+  .tag-inverted { background: #FFF0E8; color: #F0956A; }
+  .tag-larger { background: #F0E8FF; color: #7B5CE0; }
+  .tag-smaller { background: #E8F0FF; color: #4A6FA5; }
+  .tag-same { background: #F5F5F5; color: #666; }
+
+  /* Quiz section */
+  .quiz-section { margin-top: 8px; }
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .quiz-header h2 { font-size: 17px; font-weight: 800; }
+  .quiz-progress {
+    font-size: 13px;
+    color: #999;
+    font-weight: 600;
+  }
+
+  .quiz-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+  }
+  .quiz-q-num {
+    font-size: 11px;
+    font-weight: 800;
+    color: #4DBFB0;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .quiz-q-text {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    color: #1A1A1A;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 13px 16px;
+    border: 2px solid #E8E4DE;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: #4DBFB0; background: #F0FDFB; }
+  .quiz-opt.correct { border-color: #4DBFB0; background: #E8F9F7; color: #1A7A6E; }
+  .quiz-opt.wrong { border-color: #F0956A; background: #FFF0E8; color: #C05A2A; }
+  .quiz-opt.show-correct { border-color: #4DBFB0; background: #E8F9F7; color: #1A7A6E; }
+  .quiz-opt:disabled { cursor: default; }
+
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #E8F9F7; color: #1A7A6E; }
+  .quiz-feedback.wrong { background: #FFF0E8; color: #C05A2A; }
+
+  .quiz-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+  .btn-next {
+    padding: 12px 28px;
+    background: #4DBFB0;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    transition: background 0.2s;
+  }
+  .btn-next:hover { background: #3AA898; }
+  .btn-next.show { display: block; }
+
+  /* Result */
+  .result-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 36px 24px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .result-emoji { font-size: 56px; margin-bottom: 12px; }
+  .result-score { font-size: 40px; font-weight: 900; color: #4DBFB0; margin-bottom: 6px; }
+  .result-msg { font-size: 15px; color: #666; font-weight: 600; margin-bottom: 24px; }
+  .btn-retry {
+    padding: 13px 36px;
+    background: #4DBFB0;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Ray toggle */
+  .ray-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    user-select: none;
+    cursor: pointer;
+  }
+  .ray-toggle input[type=checkbox] {
+    width: 16px; height: 16px;
+    accent-color: #4DBFB0;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔭 <span>거울</span>과 <span>렌즈</span> 탐구</h1>
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="switchMain('mirror')">🪞 거울</button>
+    <button class="main-tab" onclick="switchMain('lens')">🔍 렌즈</button>
+    <button class="main-tab" onclick="switchMain('quiz')">📝 퀴즈</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ===== 거울 시뮬레이터 ===== -->
+  <div id="section-mirror">
+    <div class="type-selector">
+      <button class="type-btn active" onclick="setType('mirror','convex',this)">볼록 거울</button>
+      <button class="type-btn" onclick="setType('mirror','concave',this)">오목 거울</button>
+    </div>
+
+    <div class="sim-card">
+      <h2>
+        <span id="mirror-badge" class="badge badge-convex">볼록 거울</span>
+        상의 변화 탐구
+      </h2>
+
+      <div class="slider-section">
+        <div class="slider-label">
+          <span>물체와 거울 사이의 거리</span>
+          <span class="dist-val" id="mirror-dist-label">중간</span>
+        </div>
+        <input type="range" min="0" max="100" value="0" step="0.1" id="mirror-slider" oninput="updateMirror()">
+        <div class="dist-labels">
+          <span>가까이</span><span>멀리</span><span>아주 멀리</span>
+        </div>
+      </div>
+
+      <div class="visual-box">
+        <svg class="optic-svg" id="mirror-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="60" x2="330" y2="60" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <g id="mirror-rays"></g>
+          <g id="mirror-shape"></g>
+          <g id="mirror-object"></g>
+          <g id="mirror-image"></g>
+          <text id="mirror-obj-label" x="0" y="0" font-size="10" fill="#666" text-anchor="middle"></text>
+          <text id="mirror-img-label" x="0" y="0" font-size="10" fill="#F0956A" text-anchor="middle" font-weight="700"></text>
+        </svg>
+      </div>
+
+      <label class="ray-toggle">
+        <input type="checkbox" id="mirror-ray-toggle" onchange="updateMirror()">
+        빛의 진행 방향 보기
+      </label>
+      <div class="info-box" id="mirror-info">
+        <div class="info-title">상의 특징</div>
+        <div class="info-text" id="mirror-info-text"></div>
+        <div id="mirror-tags"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 렌즈 시뮬레이터 ===== -->
+  <div id="section-lens" class="hidden">
+    <div class="type-selector">
+      <button class="type-btn active" onclick="setType('lens','convex',this)">볼록 렌즈</button>
+      <button class="type-btn" onclick="setType('lens','concave',this)">오목 렌즈</button>
+    </div>
+
+    <div class="sim-card">
+      <h2>
+        <span id="lens-badge" class="badge badge-lens-convex">볼록 렌즈</span>
+        상의 변화 탐구
+      </h2>
+
+      <div class="slider-section">
+        <div class="slider-label">
+          <span>물체와 렌즈 사이의 거리</span>
+          <span class="dist-val" id="lens-dist-label">중간</span>
+        </div>
+        <input type="range" min="0" max="100" value="0" step="0.1" id="lens-slider" oninput="updateLens()">
+        <div class="dist-labels">
+          <span>가까이</span><span>멀리</span><span>아주 멀리</span>
+        </div>
+      </div>
+
+      <div class="visual-box">
+        <svg class="optic-svg" id="lens-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="60" x2="330" y2="60" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <g id="lens-rays"></g>
+          <g id="lens-shape"></g>
+          <g id="lens-object"></g>
+          <g id="lens-image"></g>
+          <text id="lens-obj-label" x="0" y="0" font-size="10" fill="#666" text-anchor="middle"></text>
+          <text id="lens-img-label" x="0" y="0" font-size="10" fill="#7B8CDE" text-anchor="middle" font-weight="700"></text>
+        </svg>
+      </div>
+
+      <label class="ray-toggle">
+        <input type="checkbox" id="lens-ray-toggle" onchange="updateLens()">
+        빛의 진행 방향 보기
+      </label>
+      <div class="info-box" id="lens-info">
+        <div class="info-title">상의 특징</div>
+        <div class="info-text" id="lens-info-text"></div>
+        <div id="lens-tags"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 퀴즈 ===== -->
+  <div id="section-quiz" class="hidden">
+    <div id="quiz-main">
+      <div class="quiz-header">
+        <h2>📝 확인 퀴즈</h2>
+        <div class="quiz-progress" id="quiz-progress">1 / 8</div>
+      </div>
+
+      <div class="quiz-card" id="quiz-card">
+        <div class="quiz-q-num" id="quiz-num">Q1</div>
+        <div class="quiz-q-text" id="quiz-text"></div>
+        <div class="quiz-options" id="quiz-opts"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-nav">
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">다음 →</button>
+      </div>
+    </div>
+
+    <div id="quiz-result" class="hidden">
+      <div class="result-card">
+        <div class="result-emoji" id="result-emoji">🎉</div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-msg" id="result-msg"></div>
+        <button class="btn-retry" onclick="resetQuiz()">다시 풀기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== STATE ==========
+let mirrorType = 'convex';
+let lensType = 'convex';
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function distLabel(t) {
+  if (t < 0.33) return '가까이';
+  if (t < 0.66) return '멀리';
+  return '아주 멀리';
+}
+function interpKF(kf, t) {
+  if (t <= 0.5) return lerp(kf[0], kf[1], t / 0.5);
+  return lerp(kf[1], kf[2], (t - 0.5) / 0.5);
+}
+
+// ========== MAIN TAB ==========
+function switchMain(tab) {
+  ['mirror','lens','quiz'].forEach(t => {
+    document.getElementById('section-' + t).classList.toggle('hidden', t !== tab);
+  });
+  document.querySelectorAll('.main-tab').forEach((el,i) => {
+    el.classList.toggle('active', ['mirror','lens','quiz'][i] === tab);
+  });
+  if (tab === 'mirror') updateMirror();
+  if (tab === 'lens') updateLens();
+  if (tab === 'quiz') { resetQuiz(); }
+}
+
+// ========== TYPE SELECTOR ==========
+function setType(device, type, btn) {
+  btn.closest('.type-selector').querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (device === 'mirror') { mirrorType = type; updateMirror(); }
+  else { lensType = type; updateLens(); }
+}
+
+// ========== SVG HELPERS ==========
+function arrow(x1,y1,x2,y2,color,dashed=false) {
+  const dx = x2-x1, dy = y2-y1, len = Math.sqrt(dx*dx+dy*dy);
+  if (len < 2) return '';
+  const nx = dx/len, ny = dy/len;
+  const ax = x2 - nx*8, ay = y2 - ny*8;
+  const perp1x = ax + ny*4, perp1y = ay - nx*4;
+  const perp2x = ax - ny*4, perp2y = ay + nx*4;
+  const dash = dashed ? 'stroke-dasharray="4,3"' : '';
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2" ${dash}/>
+          <polygon points="${x2},${y2} ${perp1x},${perp1y} ${perp2x},${perp2y}" fill="${color}"/>`;
+}
+
+function objectArrow(x, color='#4A6FA5') {
+  return arrow(x, 60, x, 30, color);
+}
+function imageArrowUpright(x, h, color) {
+  const tip = 60 - Math.max(h, 2);
+  return arrow(x, 60, x, tip, color);
+}
+function imageArrowInverted(x, h, color) {
+  const tip = 60 + Math.max(h, 2);
+  return arrow(x, 60, x, tip, color);
+}
+
+// ========== MIRROR ==========
+function drawMirrorShape(type) {
+  // mirror on right side at x=240
+  const mx = 240;
+  if (type === 'convex') {
+    // convex mirror: bulges toward object (left)
+    return `<path d="M${mx-10},30 Q${mx+18},60 ${mx-10},90" fill="none" stroke="#4DBFB0" stroke-width="3" stroke-linecap="round"/>
+            <path d="M${mx-10},30 Q${mx+18},60 ${mx-10},90" fill="#E8F9F7" opacity="0.5"/>
+            <text x="${mx+14}" y="64" font-size="9" fill="#4DBFB0" font-weight="700">볼록</text>`;
+  } else {
+    // concave mirror: caves inward (right)
+    return `<path d="M${mx+10},30 Q${mx-18},60 ${mx+10},90" fill="none" stroke="#F0956A" stroke-width="3" stroke-linecap="round"/>
+            <path d="M${mx+10},30 Q${mx-18},60 ${mx+10},90" fill="#FFF0E8" opacity="0.5"/>
+            <text x="${mx-22}" y="64" font-size="9" fill="#F0956A" font-weight="700">오목</text>`;
+  }
+}
+
+const mirrorKF = {
+  convex:  { objX:[70,130,200], imgX:[258,263,268], imgH:[22,14, 9], upright:[true,true,true],   virtual:[true,true,true]  },
+  concave: { objX:[70,130,200], imgX:[280,110, 85], imgH:[46,38,18], upright:[true,false,false], virtual:[true,false,false] }
+};
+
+function updateMirror() {
+  const t = parseFloat(document.getElementById('mirror-slider').value) / 100;
+  document.getElementById('mirror-dist-label').textContent = distLabel(t);
+
+  const kf = mirrorKF[mirrorType];
+  const objX = interpKF(kf.objX, t);
+  const imgX  = interpKF(kf.imgX, t);
+  const imgH  = interpKF(kf.imgH, t);
+  const idx   = t < 0.35 ? 0 : t < 0.65 ? 1 : 2;
+  const upright = kf.upright[idx];
+  const virtual  = kf.virtual[idx];
+  const scale    = imgH / 30;
+
+  document.getElementById('mirror-shape').innerHTML = drawMirrorShape(mirrorType);
+  document.getElementById('mirror-object').innerHTML = objectArrow(objX, '#4A6FA5');
+  document.getElementById('mirror-obj-label').setAttribute('x', objX);
+  document.getElementById('mirror-obj-label').setAttribute('y', 22);
+  document.getElementById('mirror-obj-label').textContent = '물체';
+
+  const imgColor = mirrorType === 'convex' ? '#4DBFB0' : '#F0956A';
+  document.getElementById('mirror-image').innerHTML = upright
+    ? imageArrowUpright(imgX, imgH, imgColor)
+    : imageArrowInverted(imgX, imgH, imgColor);
+
+  const imgLabelY = upright ? (60 - imgH - 6) : (60 + imgH + 12);
+  document.getElementById('mirror-img-label').setAttribute('x', imgX);
+  document.getElementById('mirror-img-label').setAttribute('y', imgLabelY);
+  document.getElementById('mirror-img-label').textContent = '상';
+
+  const badge = document.getElementById('mirror-badge');
+  badge.textContent = mirrorType === 'convex' ? '볼록 거울' : '오목 거울';
+  badge.className = 'badge ' + (mirrorType === 'convex' ? 'badge-convex' : 'badge-concave');
+
+  document.getElementById('mirror-info-text').textContent = mirrorInfoText(mirrorType, t);
+  document.getElementById('mirror-tags').innerHTML = makeTags({upright, virtual, scale});
+
+  const showRays = document.getElementById('mirror-ray-toggle').checked;
+  document.getElementById('mirror-rays').innerHTML = showRays
+    ? mirrorRays(mirrorType, objX, imgX, imgH, upright) : '';
+}
+
+function mirrorInfoText(type, t) {
+  if (type === 'convex') {
+    if (t < 0.33) return '물체보다 작고 바로 선 상이 생깁니다.';
+    if (t < 0.66) return '거울에서 멀어질수록 상의 크기가 작아집니다.';
+    return '아주 멀리 있어도 항상 작고 바로 선 상이 생깁니다.';
+  } else {
+    if (t < 0.33) return '가까이 있을 때는 물체보다 크고 바로 선 상이 생깁니다.';
+    if (t < 0.66) return '어느 순간 물체보다 크고 거꾸로 선 상이 나타납니다.';
+    return '거리가 멀어질수록 상의 크기가 점점 작아집니다.';
+  }
+}
+
+// ========== LENS ==========
+function drawLensShape(type) {
+  const lx = 180;
+  if (type === 'convex') {
+    return `<path d="M${lx},25 Q${lx+16},60 ${lx},95 Q${lx-16},60 ${lx},25" fill="#E8E8FF" stroke="#7B8CDE" stroke-width="2.5"/>
+            <text x="${lx}" y="112" font-size="9" fill="#7B8CDE" font-weight="700" text-anchor="middle">볼록렌즈</text>`;
+  } else {
+    return `<path d="M${lx-8},25 Q${lx+8},60 ${lx-8},95" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M${lx+8},25 Q${lx-8},60 ${lx+8},95" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="${lx}" y="112" font-size="9" fill="#E07BB5" font-weight="700" text-anchor="middle">오목렌즈</text>`;
+  }
+}
+
+const lensKF = {
+  convex:  { objX:[50,110,165], imgX:[215,255,248], imgH:[48,40,18], upright:[true,false,false], virtual:[true,false,false] },
+  concave: { objX:[50,110,165], imgX:[138,143,147], imgH:[17,12, 8], upright:[true,true,true],   virtual:[true,true,true]  }
+};
+
+function updateLens() {
+  const t = parseFloat(document.getElementById('lens-slider').value) / 100;
+  document.getElementById('lens-dist-label').textContent = distLabel(t);
+
+  const kf = lensKF[lensType];
+  const objX = interpKF(kf.objX, t);
+  const imgX  = interpKF(kf.imgX, t);
+  const imgH  = interpKF(kf.imgH, t);
+  const idx   = t < 0.35 ? 0 : t < 0.65 ? 1 : 2;
+  const upright = kf.upright[idx];
+  const virtual  = kf.virtual[idx];
+  const scale    = imgH / 30;
+
+  document.getElementById('lens-shape').innerHTML = drawLensShape(lensType);
+  document.getElementById('lens-object').innerHTML = objectArrow(objX, '#4A6FA5');
+  document.getElementById('lens-obj-label').setAttribute('x', objX);
+  document.getElementById('lens-obj-label').setAttribute('y', 22);
+  document.getElementById('lens-obj-label').textContent = '물체';
+
+  const imgColor = lensType === 'convex' ? '#7B8CDE' : '#E07BB5';
+  document.getElementById('lens-image').innerHTML = upright
+    ? imageArrowUpright(imgX, imgH, imgColor)
+    : imageArrowInverted(imgX, imgH, imgColor);
+
+  const imgLabelY = upright ? (60 - imgH - 6) : (60 + imgH + 12);
+  document.getElementById('lens-img-label').setAttribute('x', imgX);
+  document.getElementById('lens-img-label').setAttribute('y', imgLabelY);
+  document.getElementById('lens-img-label').textContent = '상';
+
+  const badge = document.getElementById('lens-badge');
+  badge.textContent = lensType === 'convex' ? '볼록 렌즈' : '오목 렌즈';
+  badge.className = 'badge ' + (lensType === 'convex' ? 'badge-lens-convex' : 'badge-lens-concave');
+
+  document.getElementById('lens-info-text').textContent = lensInfoText(lensType, t);
+  document.getElementById('lens-tags').innerHTML = makeTags({upright, virtual, scale});
+
+  const showRays = document.getElementById('lens-ray-toggle').checked;
+  document.getElementById('lens-rays').innerHTML = showRays
+    ? lensRays(lensType, objX, imgX, imgH, upright) : '';
+}
+
+function lensInfoText(type, t) {
+  if (type === 'convex') {
+    if (t < 0.33) return '가까이 있을 때는 물체보다 크고 바로 선 상이 생깁니다.';
+    if (t < 0.66) return '어느 순간 물체보다 크고 거꾸로 선 상이 나타납니다.';
+    return '멀어질수록 상의 크기가 점점 작아집니다.';
+  } else {
+    if (t < 0.33) return '물체보다 작고 바로 선 상이 생깁니다.';
+    if (t < 0.66) return '멀어질수록 상의 크기가 더 작아집니다.';
+    return '아주 멀리 있어도 항상 작고 바로 선 상이 생깁니다.';
+  }
+}
+
+function makeTags(s) {
+  let html = '';
+  html += `<span class="tag ${s.upright ? 'tag-upright' : 'tag-inverted'}">${s.upright ? '바로 선 상' : '거꾸로 선 상'}</span> `;
+  if (s.scale > 1) html += `<span class="tag tag-larger">물체보다 큼</span> `;
+  else if (s.scale < 0.9) html += `<span class="tag tag-smaller">물체보다 작음</span> `;
+  else html += `<span class="tag tag-same">물체와 비슷한 크기</span> `;
+  return html;
+}
+
+// ========== RAY HELPERS ==========
+// seg: 실선 선분
+function seg(x1,y1,x2,y2,color,dashed=false) {
+  const dash = dashed ? 'stroke-dasharray="5,4"' : '';
+  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="1.6" opacity="0.9" ${dash}/>`;
+}
+// 화살표 중간에 방향 표시
+function ray(x1,y1,x2,y2,color,dashed=false) {
+  const dx=x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy);
+  if(len<3) return '';
+  const nx=dx/len, ny=dy/len;
+  const mx=(x1+x2)/2, my=(y1+y2)/2;
+  const p1x=mx-nx*5+ny*3.5, p1y=my-ny*5-nx*3.5;
+  const p2x=mx-nx*5-ny*3.5, p2y=my-ny*5+nx*3.5;
+  const dash = dashed ? 'stroke-dasharray="5,4"' : '';
+  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="1.6" opacity="0.9" ${dash}/>
+          <polygon points="${mx.toFixed(1)},${my.toFixed(1)} ${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)}" fill="${color}" opacity="0.9"/>`;
+}
+
+// ---- 거울 광선 ----
+// 좌표계: 거울 x=240, 광축 y=60
+// 교과서 기준 광선 2개:
+//   광선A: 광축에 나란히 입사 → 반사 후 초점 방향
+//   광선B: 거울 중심(광축)을 향해 입사 → 반사각=입사각
+
+function mirrorRays(type, objX, imgX, imgH, upright) {
+  const C  = '#E05A00'; // 실선 광선색
+  const CD = '#E05A00'; // 점선 연장선색
+  const mx = 240, cy = 60;
+  // 초점: 볼록거울은 거울 뒤(오른쪽), 오목거울은 앞(왼쪽)
+  const fx = type === 'convex' ? mx + 30 : mx - 40;
+  let s = '';
+
+  // 물체 끝점 (화살촉 위치)
+  const oy = cy - 20;
+
+  if (type === 'convex') {
+    // 광선A: 물체 끝 → 거울 위쪽 면에 나란히 입사 → 반사 후 오른쪽으로 퍼짐
+    //  반사광의 연장선이 거울 뒤 초점(fx)을 지남
+    const ayOnMirror = cy - 18;
+    // 입사
+    s += ray(objX, ayOnMirror, mx-10, ayOnMirror, C);
+    // 반사 후 오른쪽으로 퍼짐 (연장선이 fx,cy를 향함 → 반대 방향으로 실제 반사)
+    s += ray(mx-10, ayOnMirror, mx+70, ayOnMirror+12, C);
+    // 연장선(점선): 반사광을 거울 뒤로 연장 → 허상 위치로
+    s += seg(mx-10, ayOnMirror, imgX, cy-imgH, CD, true);
+
+    // 광선B: 물체 끝 → 거울 중심(mx, cy) → 반사(대칭)
+    // 입사각 = 반사각, 거울 중심에서 대칭
+    const bInDx = mx - objX, bInDy = cy - oy;
+    const bLen = Math.sqrt(bInDx*bInDx + bInDy*bInDy);
+    // 반사: x성분 반전(거울이 수직), y성분 유지
+    const bRefDx = -bInDx, bRefDy = bInDy;
+    const bScale = 70 / Math.sqrt(bRefDx*bRefDx + bRefDy*bRefDy);
+    s += ray(objX, oy, mx, cy, C);
+    s += ray(mx, cy, mx + bRefDx*bScale, cy + bRefDy*bScale, C);
+    // 연장선 → 허상
+    s += seg(mx, cy, imgX, cy-imgH, CD, true);
+
+  } else {
+    if (upright) {
+      // 오목거울 가까이(허상): 반사광들의 연장선이 거울 뒤에서 만남
+      const ayOnMirror = cy - 18;
+      // 광선A: 나란히 입사 → 반사 후 초점(fx) 통과
+      s += ray(objX, ayOnMirror, mx+10, ayOnMirror, C);
+      s += ray(mx+10, ayOnMirror, fx + (fx-mx)*0.8, cy - (ayOnMirror-cy)*0.3, C);
+      // 반사광 연장선 → 허상
+      s += seg(mx+10, ayOnMirror, imgX, cy-imgH, CD, true);
+
+      // 광선B: 거울 중심(광축)을 향해 → 입사각=반사각
+      const bInDx = mx - objX, bInDy = cy - oy;
+      const bRefDx = -bInDx, bRefDy = bInDy;
+      const bScale = 60 / Math.sqrt(bRefDx*bRefDx + bRefDy*bRefDy);
+      s += ray(objX, oy, mx, cy, C);
+      s += ray(mx, cy, mx + bRefDx*bScale, cy + bRefDy*bScale, C);
+      s += seg(mx, cy, imgX, cy-imgH, CD, true);
+
+    } else {
+      // 오목거울 멀리(실상): 반사광이 실제로 만남, 거꾸로 선 상
+      const ayOnMirror = cy - 18;
+      // 광선A: 나란히 입사 → 반사 후 초점 통과 → 상으로
+      s += ray(objX, ayOnMirror, mx+10, ayOnMirror, C);
+      s += ray(mx+10, ayOnMirror, imgX, cy+imgH, C);
+
+      // 광선B: 거울 중심 향해 입사 → 반사(대칭) → 상으로
+      const bInDx = mx - objX, bInDy = cy - oy;
+      const bRefDx = -bInDx, bRefDy = bInDy;
+      const bScale = Math.sqrt((imgX-mx)**2+(cy+imgH-cy)**2) / Math.sqrt(bRefDx**2+bRefDy**2);
+      s += ray(objX, oy, mx, cy, C);
+      s += ray(mx, cy, imgX, cy+imgH, C);
+    }
+  }
+  return s;
+}
+
+// ---- 렌즈 광선 ----
+// 좌표계: 렌즈 x=180, 광축 y=60
+// 교과서 기준 광선 2개:
+//   광선A: 광축에 나란히 입사 → 굴절 후 초점 통과(볼록) 또는 초점에서 나온 것처럼 퍼짐(오목)
+//   광선B: 렌즈 중심 통과 → 직진
+
+function lensRays(type, objX, imgX, imgH, upright) {
+  const C  = '#E05A00';
+  const CD = '#E05A00';
+  const lx = 180, cy = 60;
+  // 초점: 볼록렌즈는 오른쪽(lx+40), 오목렌즈는 왼쪽(lx-35)
+  const fx = type === 'convex' ? lx + 40 : lx - 35;
+  let s = '';
+
+  const oy = cy - 20; // 물체 끝 y
+
+  if (type === 'convex') {
+    if (upright) {
+      // 볼록렌즈 가까이(허상, 바로 선): 굴절광 연장선이 물체쪽(왼쪽)에서 만남
+      // 광선A: 나란히 입사 → 굴절 후 초점(fx) 향해 오른쪽으로
+      s += ray(objX, oy, lx, oy, C);
+      s += ray(lx, oy, lx+90, oy + (cy-oy)*(90/(fx-lx)), C);
+      // 굴절광 연장선(점선) → 허상
+      s += seg(lx, oy, imgX, cy-imgH, CD, true);
+
+      // 광선B: 렌즈 중심 직진 → 계속 직진
+      // 물체끝 → 렌즈중심(lx, cy) → 같은 방향으로 직진
+      const bDx = lx - objX, bDy = cy - oy;
+      const bScale = 80 / Math.sqrt(bDx*bDx + bDy*bDy);
+      s += ray(objX, oy, lx, cy, C);
+      s += ray(lx, cy, lx + bDx*bScale, cy + bDy*bScale, C);
+      // 연장선 → 허상
+      s += seg(lx, cy, imgX, cy-imgH, CD, true);
+
+    } else {
+      // 볼록렌즈 멀리(실상, 거꾸로): 굴절광이 오른쪽에서 만남
+      // 광선A: 나란히 입사 → 굴절 후 초점 통과 → 상까지
+      s += ray(objX, oy, lx, oy, C);
+      s += ray(lx, oy, imgX, cy+imgH, C);
+
+      // 광선B: 렌즈 중심 직진 → 상까지
+      s += ray(objX, oy, lx, cy, C);
+      s += ray(lx, cy, imgX, cy+imgH, C);
+    }
+
+  } else {
+    // 오목렌즈: 항상 허상, 바로 선, 물체쪽에 상
+    // 광선A: 나란히 입사 → 굴절 후 왼쪽 초점(fx)에서 나온 것처럼 퍼짐
+    //  굴절 후 방향: (lx,oy) → (lx+90, oy + delta)
+    //  연장선이 (fx, cy)를 지나도록
+    const dxA = lx - fx, dyA = oy - cy; // fx→렌즈 방향
+    const scaleA = 90 / Math.sqrt(dxA*dxA + dyA*dyA);
+    const afterAx = lx + dxA*scaleA, afterAy = oy + dyA*scaleA;
+    s += ray(objX, oy, lx, oy, C);           // 입사(나란히)
+    s += ray(lx, oy, afterAx, afterAy, C);   // 굴절 후 퍼짐
+    // 굴절광 연장선(점선) → 허상
+    s += seg(lx, oy, imgX, cy-imgH, CD, true);
+
+    // 광선B: 렌즈 중심 직진
+    const bDx = lx - objX, bDy = cy - oy;
+    const bScale = 80 / Math.sqrt(bDx*bDx + bDy*bDy);
+    s += ray(objX, oy, lx, cy, C);
+    s += ray(lx, cy, lx + bDx*bScale, cy + bDy*bScale, C);
+    // 연장선 → 허상
+    s += seg(lx, cy, imgX, cy-imgH, CD, true);
+  }
+  return s;
+}
+
+// ========== QUIZ ==========
+const questions = [
+  { q:'볼록 거울로 물체를 보면 물체와 거울 사이의 거리에 관계없이 어떤 상이 생기나요?',
+    opts:['크고 바로 선 상','작고 바로 선 상','크고 거꾸로 선 상','작고 거꾸로 선 상'], ans:1,
+    exp:'볼록 거울은 거리에 상관없이 항상 물체보다 작고 바로 선 상이 생깁니다.' },
+  { q:'오목 거울로 물체를 아주 가까이서 볼 때 생기는 상의 특징은?',
+    opts:['작고 거꾸로 선 상','크고 거꾸로 선 상','크고 바로 선 상','상이 생기지 않는다'], ans:2,
+    exp:'오목 거울에 가까이 있을 때는 물체보다 크고 바로 선 상이 생깁니다.' },
+  { q:'볼록 거울에서 물체가 멀어질수록 상의 크기는 어떻게 변하나요?',
+    opts:['점점 커진다','변하지 않는다','점점 작아진다','커졌다 작아진다'], ans:2,
+    exp:'볼록 거울은 물체가 멀어질수록 상의 크기가 점점 작아집니다.' },
+  { q:'오목 거울에서 물체가 어느 순간 멀어지면 나타나는 상의 특징은?',
+    opts:['더 크고 바로 선 상','크고 거꾸로 선 상','작고 바로 선 상','상이 사라진다'], ans:1,
+    exp:'오목 거울에서 물체가 어느 정도 멀어지면 물체보다 크고 거꾸로 선 상이 나타납니다.' },
+  { q:'볼록 렌즈로 물체를 가까이서 볼 때 생기는 상의 특징은?',
+    opts:['작고 거꾸로 선 상','작고 바로 선 상','크고 바로 선 상','크고 거꾸로 선 상'], ans:2,
+    exp:'볼록 렌즈에 가까이 있을 때는 물체보다 크고 바로 선 상이 생깁니다.' },
+  { q:'오목 렌즈로 물체를 보면 물체와 렌즈 사이의 거리에 관계없이 어떤 상이 생기나요?',
+    opts:['항상 크고 바로 선 상','항상 작고 바로 선 상','항상 거꾸로 선 상','거리에 따라 달라진다'], ans:1,
+    exp:'오목 렌즈는 거리에 관계없이 항상 물체보다 작고 바로 선 상이 생깁니다.' },
+  { q:'볼록 렌즈에서 물체가 멀어지면 어느 순간 나타나는 상은?',
+    opts:['더 크고 바로 선 상','크고 거꾸로 선 상','작고 바로 선 상','상이 없어진다'], ans:1,
+    exp:'볼록 렌즈에서 물체가 멀어지면 어느 순간 물체보다 크고 거꾸로 선 상이 나타납니다.' },
+  { q:'오목 렌즈에서 물체가 렌즈에서 멀어질수록 상의 크기는?',
+    opts:['점점 커진다','변하지 않는다','점점 작아진다','커졌다 작아진다'], ans:2,
+    exp:'오목 렌즈는 물체가 멀어질수록 상의 크기가 더 작아집니다.' },
+];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('quiz-num').textContent = `Q${currentQ + 1}`;
+  document.getElementById('quiz-text').textContent = q.q;
+  document.getElementById('quiz-progress').textContent = `${currentQ+1} / ${questions.length}`;
+  document.getElementById('quiz-feedback').className = 'quiz-feedback';
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('btn-next').classList.remove('show');
+  answered = false;
+
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = `${['①','②','③','④'][i]} ${opt}`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[currentQ];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('quiz-feedback');
+
+  if (i === q.ans) {
+    score++;
+    opts[i].classList.add('correct');
+    fb.className = 'quiz-feedback correct show';
+    fb.textContent = '✅ 정답! ' + q.exp;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[q.ans].classList.add('show-correct');
+    fb.className = 'quiz-feedback wrong show';
+    fb.textContent = '❌ 오답. ' + q.exp;
+  }
+  document.getElementById('btn-next').classList.add('show');
+  document.getElementById('btn-next').textContent =
+    currentQ < questions.length - 1 ? '다음 →' : '결과 보기';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-main').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  const pct = Math.round(score / questions.length * 100);
+  document.getElementById('result-score').textContent = `${score} / ${questions.length}`;
+  let emoji = '😊', msg = '조금 더 탐구해봐요!';
+  if (pct === 100) { emoji = '🏆'; msg = '완벽해요! 거울과 렌즈 마스터!'; }
+  else if (pct >= 75) { emoji = '🎉'; msg = '잘했어요! 거의 다 맞혔네요.'; }
+  else if (pct >= 50) { emoji = '👍'; msg = '괜찮아요! 시뮬레이터로 다시 확인해봐요.'; }
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-msg').textContent = msg;
+}
+
+function resetQuiz() {
+  currentQ = 0; score = 0; answered = false;
+  document.getElementById('quiz-main').classList.remove('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  loadQuestion();
+}
+
+// ========== INIT ==========
+updateMirror();
+updateLens();
+loadQuestion();
+</script>
+</body>
+</html>
