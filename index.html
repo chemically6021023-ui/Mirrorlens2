@@ -164,7 +164,7 @@
     padding: 20px 16px;
     margin: 16px 0;
     text-align: center;
-    min-height: 160px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -183,7 +183,7 @@
 
   .optic-svg {
     width: 100%;
-    height: 120px;
+    height: 180px;
   }
 
   /* Info box */
@@ -391,8 +391,8 @@
       </div>
 
       <div class="visual-box">
-        <svg class="optic-svg" id="mirror-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
-          <line x1="10" y1="60" x2="330" y2="60" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <svg class="optic-svg" id="mirror-svg" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="90" x2="330" y2="90" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
           <g id="mirror-rays"></g>
           <g id="mirror-shape"></g>
           <g id="mirror-object"></g>
@@ -439,8 +439,8 @@
       </div>
 
       <div class="visual-box">
-        <svg class="optic-svg" id="lens-svg" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
-          <line x1="10" y1="60" x2="330" y2="60" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <svg class="optic-svg" id="lens-svg" viewBox="0 0 340 180" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="90" x2="330" y2="90" stroke="#DDD" stroke-width="1.5" stroke-dasharray="4,3"/>
           <g id="lens-rays"></g>
           <g id="lens-shape"></g>
           <g id="lens-object"></g>
@@ -545,15 +545,15 @@ function arrow(x1,y1,x2,y2,color,dashed=false) {
 }
 
 function objectArrow(x, color='#4A6FA5') {
-  return arrow(x, 60, x, 30, color);
+  return arrow(x, 90, x, 50, color);
 }
 function imageArrowUpright(x, h, color) {
-  const tip = 60 - Math.max(h, 2);
-  return arrow(x, 60, x, tip, color);
+  const tip = 90 - Math.max(h, 2);
+  return arrow(x, 90, x, tip, color);
 }
 function imageArrowInverted(x, h, color) {
-  const tip = 60 + Math.max(h, 2);
-  return arrow(x, 60, x, tip, color);
+  const tip = 90 + Math.max(h, 2);
+  return arrow(x, 90, x, tip, color);
 }
 
 // ========== MIRROR ==========
@@ -564,18 +564,18 @@ function drawMirrorShape(type) {
     // convex mirror: bulges toward object (left)
     return `<path d="M${mx-10},30 Q${mx+18},60 ${mx-10},90" fill="none" stroke="#4DBFB0" stroke-width="3" stroke-linecap="round"/>
             <path d="M${mx-10},30 Q${mx+18},60 ${mx-10},90" fill="#E8F9F7" opacity="0.5"/>
-            <text x="${mx+14}" y="64" font-size="9" fill="#4DBFB0" font-weight="700">볼록</text>`;
+            <text x="${mx+14}" y="94" font-size="9" fill="#4DBFB0" font-weight="700">볼록</text>`;
   } else {
     // concave mirror: caves inward (right)
-    return `<path d="M${mx+10},30 Q${mx-18},60 ${mx+10},90" fill="none" stroke="#F0956A" stroke-width="3" stroke-linecap="round"/>
+    return `<path d="M${mx+10},45 Q${mx-18},90 ${mx+10},135" fill="none" stroke="#F0956A" stroke-width="3" stroke-linecap="round"/>
             <path d="M${mx+10},30 Q${mx-18},60 ${mx+10},90" fill="#FFF0E8" opacity="0.5"/>
-            <text x="${mx-22}" y="64" font-size="9" fill="#F0956A" font-weight="700">오목</text>`;
+            <text x="${mx-22}" y="94" font-size="9" fill="#F0956A" font-weight="700">오목</text>`;
   }
 }
 
 const mirrorKF = {
-  convex:  { objX:[70,130,200], imgX:[258,263,268], imgH:[22,14, 9], upright:[true,true,true],   virtual:[true,true,true]  },
-  concave: { objX:[70,130,200], imgX:[280,110, 85], imgH:[46,38,18], upright:[true,false,false], virtual:[true,false,false] }
+  convex:  { objX:[70,130,200], imgX:[258,263,268], imgH:[35,22,14], upright:[true,true,true],   virtual:[true,true,true]  },
+  concave: { objX:[70,130,200], imgX:[280,110, 85], imgH:[70,58,28], upright:[true,false,false], virtual:[true,false,false] }
 };
 
 function updateMirror() {
@@ -594,7 +594,7 @@ function updateMirror() {
   document.getElementById('mirror-shape').innerHTML = drawMirrorShape(mirrorType);
   document.getElementById('mirror-object').innerHTML = objectArrow(objX, '#4A6FA5');
   document.getElementById('mirror-obj-label').setAttribute('x', objX);
-  document.getElementById('mirror-obj-label').setAttribute('y', 22);
+  document.getElementById('mirror-obj-label').setAttribute('y', 42);
   document.getElementById('mirror-obj-label').textContent = '물체';
 
   const imgColor = mirrorType === 'convex' ? '#4DBFB0' : '#F0956A';
@@ -602,7 +602,7 @@ function updateMirror() {
     ? imageArrowUpright(imgX, imgH, imgColor)
     : imageArrowInverted(imgX, imgH, imgColor);
 
-  const imgLabelY = upright ? (60 - imgH - 6) : (60 + imgH + 12);
+  const imgLabelY = upright ? (90 - imgH - 6) : (90 + imgH + 12);
   document.getElementById('mirror-img-label').setAttribute('x', imgX);
   document.getElementById('mirror-img-label').setAttribute('y', imgLabelY);
   document.getElementById('mirror-img-label').textContent = '상';
@@ -635,18 +635,18 @@ function mirrorInfoText(type, t) {
 function drawLensShape(type) {
   const lx = 180;
   if (type === 'convex') {
-    return `<path d="M${lx},25 Q${lx+16},60 ${lx},95 Q${lx-16},60 ${lx},25" fill="#E8E8FF" stroke="#7B8CDE" stroke-width="2.5"/>
-            <text x="${lx}" y="112" font-size="9" fill="#7B8CDE" font-weight="700" text-anchor="middle">볼록렌즈</text>`;
+    return `<path d="M${lx},40 Q${lx+16},90 ${lx},140 Q${lx-16},90 ${lx},40" fill="#E8E8FF" stroke="#7B8CDE" stroke-width="2.5"/>
+            <text x="${lx}" y="155" font-size="9" fill="#7B8CDE" font-weight="700" text-anchor="middle">볼록렌즈</text>`;
   } else {
-    return `<path d="M${lx-8},25 Q${lx+8},60 ${lx-8},95" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M${lx+8},25 Q${lx-8},60 ${lx+8},95" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
-            <text x="${lx}" y="112" font-size="9" fill="#E07BB5" font-weight="700" text-anchor="middle">오목렌즈</text>`;
+    return `<path d="M${lx-8},40 Q${lx+8},90 ${lx-8},140" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M${lx+8},40 Q${lx-8},90 ${lx+8},140" fill="none" stroke="#E07BB5" stroke-width="2.5" stroke-linecap="round"/>
+            <text x="${lx}" y="155" font-size="9" fill="#E07BB5" font-weight="700" text-anchor="middle">오목렌즈</text>`;
   }
 }
 
 const lensKF = {
-  convex:  { objX:[50,110,165], imgX:[215,255,248], imgH:[48,40,18], upright:[true,false,false], virtual:[true,false,false] },
-  concave: { objX:[50,110,165], imgX:[138,143,147], imgH:[17,12, 8], upright:[true,true,true],   virtual:[true,true,true]  }
+  convex:  { objX:[50,110,165], imgX:[215,255,248], imgH:[72,60,28], upright:[true,false,false], virtual:[true,false,false] },
+  concave: { objX:[50,110,165], imgX:[138,143,147], imgH:[26,18,12], upright:[true,true,true],   virtual:[true,true,true]  }
 };
 
 function updateLens() {
@@ -665,7 +665,7 @@ function updateLens() {
   document.getElementById('lens-shape').innerHTML = drawLensShape(lensType);
   document.getElementById('lens-object').innerHTML = objectArrow(objX, '#4A6FA5');
   document.getElementById('lens-obj-label').setAttribute('x', objX);
-  document.getElementById('lens-obj-label').setAttribute('y', 22);
+  document.getElementById('lens-obj-label').setAttribute('y', 42);
   document.getElementById('lens-obj-label').textContent = '물체';
 
   const imgColor = lensType === 'convex' ? '#7B8CDE' : '#E07BB5';
@@ -673,7 +673,7 @@ function updateLens() {
     ? imageArrowUpright(imgX, imgH, imgColor)
     : imageArrowInverted(imgX, imgH, imgColor);
 
-  const imgLabelY = upright ? (60 - imgH - 6) : (60 + imgH + 12);
+  const imgLabelY = upright ? (90 - imgH - 6) : (90 + imgH + 12);
   document.getElementById('lens-img-label').setAttribute('x', imgX);
   document.getElementById('lens-img-label').setAttribute('y', imgLabelY);
   document.getElementById('lens-img-label').textContent = '상';
@@ -739,7 +739,7 @@ function ray(x1,y1,x2,y2,color,dashed=false) {
 function mirrorRays(type, objX, imgX, imgH, upright) {
   const C  = '#E05A00'; // 실선 광선색
   const CD = '#E05A00'; // 점선 연장선색
-  const mx = 240, cy = 60;
+  const mx = 240, cy = 90;
   // 초점: 볼록거울은 거울 뒤(오른쪽), 오목거울은 앞(왼쪽)
   const fx = type === 'convex' ? mx + 30 : mx - 40;
   let s = '';
@@ -815,7 +815,7 @@ function mirrorRays(type, objX, imgX, imgH, upright) {
 function lensRays(type, objX, imgX, imgH, upright) {
   const C  = '#E05A00';
   const CD = '#E05A00';
-  const lx = 180, cy = 60;
+  const lx = 180, cy = 90;
   // 초점: 볼록렌즈는 오른쪽(lx+40), 오목렌즈는 왼쪽(lx-35)
   const fx = type === 'convex' ? lx + 40 : lx - 35;
   let s = '';
